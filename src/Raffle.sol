@@ -125,7 +125,6 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatibleInterface {
         )
     {
         bool isOpen = RaffleState.OPEN == s_raffleState;
-        // if current timestamp minus the last timestamp is greater than the interval, time has passed
         bool timePassed = ((block.timestamp - s_lastTimeStamp) > i_interval);
         bool hasPlayers = s_players.length > 0;
         bool hasBalance = address(this).balance > 0;
@@ -165,13 +164,10 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatibleInterface {
      * @dev This is the function that Chainlink VRF node
      * calls to send the money to the random winner.
      */
-    // CEI: Checks, Effects, Interactions
     function fulfillRandomWords(
         uint256, /* requestId */
         uint256[] memory randomWords
     ) internal override {
-        // Checks require()
-        // Effects (Our own contract)
         // s_players size 10
         // randomNumber 202
         // 202 % 10 ? what's doesn't divide evenly into 202?
@@ -184,13 +180,12 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatibleInterface {
         s_players = new address payable[](0);
         s_raffleState = RaffleState.OPEN;
         s_lastTimeStamp = block.timestamp;
-        emit WinnerPicked(recentWinner);
-        // Interactions (Other contracts)
         (bool success, ) = recentWinner.call{value: address(this).balance}("");
         // require(success, "Transfer failed");
         if (!success) {
             revert Raffle__TransferFailed();
         }
+        emit WinnerPicked(recentWinner);
     }
 
     /** Getter Functions */
