@@ -90,8 +90,6 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatibleInterface {
     }
 
     function enterRaffle() public payable {
-        // require(msg.value >= i_entranceFee, "Not enough value sent");
-        // require(s_raffleState == RaffleState.OPEN, "Raffle is not open");
         if (msg.value < i_entranceFee) {
             revert Raffle__SendMoreToEnterRaffle();
         }
@@ -129,7 +127,7 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatibleInterface {
         bool hasPlayers = s_players.length > 0;
         bool hasBalance = address(this).balance > 0;
         upkeepNeeded = (timePassed && isOpen && hasBalance && hasPlayers);
-        return (upkeepNeeded, "0x0"); // can we comment this out?
+        return (upkeepNeeded, "0x0");
     }
 
     /**
@@ -156,7 +154,7 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatibleInterface {
             i_callbackGasLimit,
             NUM_WORDS
         );
-        // Quiz... is this redundant?
+
         emit RequestedRaffleWinner(requestId);
     }
 
@@ -170,7 +168,7 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatibleInterface {
     ) internal override {
         // s_players size 10
         // randomNumber 202
-        // 202 % 10 ? what's doesn't divide evenly into 202?
+        // 202 % 10 ? what doesn't divide evenly into 202?
         // 20 * 10 = 200
         // 2
         // 202 % 10 = 2
@@ -181,7 +179,7 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatibleInterface {
         s_raffleState = RaffleState.OPEN;
         s_lastTimeStamp = block.timestamp;
         (bool success, ) = recentWinner.call{value: address(this).balance}("");
-        // require(success, "Transfer failed");
+
         if (!success) {
             revert Raffle__TransferFailed();
         }
@@ -189,7 +187,6 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatibleInterface {
     }
 
     /** Getter Functions */
-
     function getRaffleState() public view returns (RaffleState) {
         return s_raffleState;
     }
